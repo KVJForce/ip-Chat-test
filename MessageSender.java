@@ -13,17 +13,24 @@ public class MessageSender {
         System.out.print("Ange port (t.ex. 5000): ");
         int port = Integer.parseInt(scanner.nextLine());
 
-        System.out.print("Skriv meddelandet: ");
-        String message = scanner.nextLine();
-
         DatagramSocket socket = new DatagramSocket();
         InetAddress address = InetAddress.getByName(ip);
-        byte[] data = message.getBytes("UTF-8");
-        DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
-        socket.send(packet);
 
-        System.out.println("Meddelande skickat till " + ip + ":" + port);
+        System.out.println("Skriv meddelanden nedan. Tryck Esc + Enter för att avsluta.\n");
+
+        while (true) {
+            String message = scanner.nextLine();
+            if (message.length() == 1 && message.charAt(0) == 27) {
+                break;
+            }
+            byte[] data = message.getBytes("UTF-8");
+            DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
+            socket.send(packet);
+            System.out.println("Skickat till " + ip + ":" + port);
+        }
+
         socket.close();
         scanner.close();
+        System.out.println("Avslutar.");
     }
 }
