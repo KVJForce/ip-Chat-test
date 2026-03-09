@@ -38,6 +38,13 @@ public class MessageReceiver {
                         clients.put(clientKey, packet.getAddress());
                         clientPorts.put(clientKey, senderPort);
                         System.out.println("[" + clientKey + " anslöt]");
+
+                        // Skicka bekräftelse till klienten
+                        String welcome = "Ansluten till servern! (" + clientKey + ")";
+                        byte[] welcomeData = welcome.getBytes("UTF-8");
+                        DatagramPacket welcomePacket = new DatagramPacket(
+                            welcomeData, welcomeData.length, packet.getAddress(), senderPort);
+                        socket.send(welcomePacket);
                     }
 
                     System.out.println(clientKey + ": " + message);
