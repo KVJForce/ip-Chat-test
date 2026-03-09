@@ -24,7 +24,7 @@ public class Chat {
 
         String localIp = InetAddress.getLocalHost().getHostAddress();
         System.out.println("\nChatt startad! (" + localIp + ":" + myPort + ")");
-        System.out.println("Skriv meddelanden nedan. 'quit' för att avsluta.\n");
+        System.out.println("Skriv meddelanden nedan. Tryck Esc för att avsluta.\n");
 
         // Tråd som lyssnar efter inkommande meddelanden
         Thread receiver = new Thread(() -> {
@@ -43,19 +43,26 @@ public class Chat {
         receiver.setDaemon(true);
         receiver.start();
 
-        // Huvudtråden skickar meddelanden
+        // Huvudtråden läser tecken och skickar meddelanden
+        StringBuilder inputBuffer = new StringBuilder();
         while (true) {
-            String input = scanner.nextLine();
-            if (input.equalsIgnoreCase("quit")) {
+            int b = System.in.read();
+            if (b == 27) { // Esc-tangenten
                 break;
+            } else if (b == '\n' || b == '\r') {
+                if (inputBuffer.length() > 0) {
+                    String message = name + ": " + inputBuffer.toString();
+                    byte[] data = message.getBytes("UTF-8");
+                    DatagramPacket packet = new DatagramPacket(data, data.length, remoteAddress, remotePort);
+                    socket.send(packet);
+                    inputBuffer.setLength(0);
+                }
+            } else {
+                inputBuffer.append((char) b);
             }
-            String message = name + ": " + input;
-            byte[] data = message.getBytes("UTF-8");
-            DatagramPacket packet = new DatagramPacket(data, data.length, remoteAddress, remotePort);
-            socket.send(packet);
         }
 
         socket.close();
-        System.out.println("Chatten avslutad.");
+        System.out.println("\nChatten avslutad.");
     }
 }
